@@ -13,7 +13,7 @@
 #endif
 
 extern void predict_classifier(char *datacfg, char *cfgfile, char *weightfile, char *filename, int top);
-extern void test_detector(char *datacfg, char *cfgfile, char *weightfile, char *filename, float thresh, float hier_thresh);
+extern void test_detector(char *datacfg, char *cfgfile, char *weightfile, char *filenames[], int numfiles, float thresh, float hier_thresh);
 extern void run_voxel(int argc, char **argv);
 extern void run_yolo(int argc, char **argv);
 extern void run_detector(int argc, char **argv);
@@ -383,9 +383,25 @@ int main(int argc, char **argv)
     } else if (0 == strcmp(argv[1], "detector")){
         run_detector(argc, argv);
     } else if (0 == strcmp(argv[1], "detect")){
+        FILE * fp;
+        fp = fopen("output.json", "w");
+        fclose(fp);
         float thresh = find_float_arg(argc, argv, "-thresh", .24);
-        char *filename = (argc > 4) ? argv[4]: 0;
-        test_detector("cfg/coco.data", argv[2], argv[3], filename, thresh, .5);
+        int num_args = argc;
+        if (thresh != .24) {
+            num_args -= 2;
+        }
+        int i;
+        int numfiles = num_args-4;
+        char *filenames[numfiles];
+        if (num_args > 4) {
+            for (i=0; i<numfiles; ++i) {
+                filenames[i] = argv[4+i];
+            }
+        } else {
+            filenames[0] = (num_args > 4) ? argv[4]: 0;
+        }
+        test_detector("cfg/coco.data", argv[2], argv[3], filenames, numfiles, thresh, .5);
     } else if (0 == strcmp(argv[1], "cifar")){
         run_cifar(argc, argv);
     } else if (0 == strcmp(argv[1], "go")){

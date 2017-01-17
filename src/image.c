@@ -181,6 +181,10 @@ void draw_detections(image im, int num, float thresh, box *boxes, float **probs,
 {
     int i;
 
+    FILE * fp;
+
+    fp = fopen("output.json", "a");
+
     for(i = 0; i < num; ++i){
         int class = max_index(probs[i], classes);
         float prob = probs[i][class];
@@ -217,13 +221,19 @@ void draw_detections(image im, int num, float thresh, box *boxes, float **probs,
             if(top < 0) top = 0;
             if(bot > im.h-1) bot = im.h-1;
 
-            draw_box_width(im, left, top, right, bot, width, red, green, blue);
-            if (alphabet) {
-                image label = get_label(alphabet, names[class], (im.h*.03)/10);
-                draw_label(im, top + width, left, label, rgb);
-            }
+            fprintf(fp, "%s (%f): %d, %d, %d, %d \n", names[class], prob, left, right, top, bot);
+
+            // draw_box_width(im, left, top, right, bot, width, red, green, blue);
+            // if (alphabet) {
+            //     image label = get_label(alphabet, names[class], (im.h*.03)/10);
+            //     draw_label(im, top + width, left, label, rgb);
+            // }
         }
     }
+
+    fprintf(fp, "---\n");
+
+    fclose(fp);
 }
 
 void transpose_image(image im)

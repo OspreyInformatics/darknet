@@ -438,7 +438,7 @@ void validate_detector_recall(char *cfgfile, char *weightfile)
     }
 }
 
-void test_detector(char *datacfg, char *cfgfile, char *weightfile, char *filename, float thresh, float hier_thresh)
+void test_detector(char *datacfg, char *cfgfile, char *weightfile, char *filenames[], int numfiles, float thresh, float hier_thresh)
 {
     list *options = read_data_cfg(datacfg);
     char *name_list = option_find_str(options, "names", "data/names.list");
@@ -456,8 +456,12 @@ void test_detector(char *datacfg, char *cfgfile, char *weightfile, char *filenam
     char *input = buff;
     int j;
     float nms=.4;
+    char *filename;
+    int fileno = 0;
     while(1){
-        if(filename){
+        if(filenames){
+            filename = filenames[fileno];
+            printf("Testing file: %s\n", filename);
             strncpy(input, filename, 256);
         } else {
             printf("Enter Image Path: ");
@@ -481,6 +485,11 @@ void test_detector(char *datacfg, char *cfgfile, char *weightfile, char *filenam
         get_region_boxes(l, 1, 1, thresh, probs, boxes, 0, 0, hier_thresh);
         if (l.softmax_tree && nms) do_nms_obj(boxes, probs, l.w*l.h*l.n, l.classes, nms);
         else if (nms) do_nms_sort(boxes, probs, l.w*l.h*l.n, l.classes, nms);
+        FILE * fp;
+        fp = fopen("output.json", "a");
+        fprintf(fp, "%s\n", filename);
+        fclose(fp);
+
         draw_detections(im, l.w*l.h*l.n, thresh, boxes, probs, names, alphabet, l.classes);
         save_image(im, "predictions");
         show_image(im, "predictions");
@@ -493,7 +502,8 @@ void test_detector(char *datacfg, char *cfgfile, char *weightfile, char *filenam
         cvWaitKey(0);
         cvDestroyAllWindows();
 #endif
-        if (filename) break;
+        fileno++;
+        if (fileno >= numfiles) break;
     }
 }
 
@@ -534,19 +544,34 @@ void run_detector(int argc, char **argv)
 
     int clear = find_arg(argc, argv, "-clear");
 
+    FILE * fp;
+    fp = fopen("output.json", "w");
+    fclose(fp);
+
     char *datacfg = argv[3];
     char *cfg = argv[4];
     char *weights = (argc > 5) ? argv[5] : 0;
-    char *filename = (argc > 6) ? argv[6]: 0;
-    if(0==strcmp(argv[2], "test")) test_detector(datacfg, cfg, weights, filename, thresh, hier_thresh);
+    int i;
+    int numfiles = argc-6;
+    char *filenames[numfiles];
+    if (argc > 6) {
+        for (i=0; i<numfiles; ++i) {
+            filenames[i] = argv[6+i];
+        }
+    } else {
+        filenames[0] = (argc > 6) ? argv[6]: 0;
+    }
+    // char *filename = (argc > 6) ? argv[6]: 0;
+
+    if(0==strcmp(argv[2], "test")) test_detector(datacfg, cfg, weights, filenames, numfiles, thresh, hier_thresh);
     else if(0==strcmp(argv[2], "train")) train_detector(datacfg, cfg, weights, gpus, ngpus, clear);
     else if(0==strcmp(argv[2], "valid")) validate_detector(datacfg, cfg, weights, outfile);
     else if(0==strcmp(argv[2], "recall")) validate_detector_recall(cfg, weights);
-    else if(0==strcmp(argv[2], "demo")) {
-        list *options = read_data_cfg(datacfg);
-        int classes = option_find_int(options, "classes", 20);
-        char *name_list = option_find_str(options, "names", "data/names.list");
-        char **names = get_labels(name_list);
-        demo(cfg, weights, thresh, cam_index, filename, names, classes, frame_skip, prefix, hier_thresh);
-    }
+    // else if(0==strcmp(argv[2], "demo")) {
+    //     list *options = read_data_cfg(datacfg);
+    //     int classes = option_find_int(options, "classes", 20);
+    //     char *name_list = option_find_str(options, "names", "data/names.list");
+    //     char **names = get_labels(name_list);
+    //     demo(cfg, weights, thresh, cam_index, filename, names, classes, frame_skip, prefix, hier_thresh);
+    // }
 }
