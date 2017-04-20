@@ -582,6 +582,7 @@ void validate_detector_recall(char *cfgfile, char *weightfile)
 
 void test_detector(char *datacfg, char *cfgfile, char *weightfile, char *filenames[], int numfiles, float thresh, float hier_thresh, char *outfile, int fullscreen)
 {
+
     list *options = read_data_cfg(datacfg);
     char *name_list = option_find_str(options, "names", "data/names.list");
     char **names = get_labels(name_list);
@@ -631,12 +632,11 @@ void test_detector(char *datacfg, char *cfgfile, char *weightfile, char *filenam
         get_region_boxes(l, im.w, im.h, net.w, net.h, thresh, probs, boxes, 0, 0, hier_thresh, 1);
         if (nms) do_nms_obj(boxes, probs, l.w*l.h*l.n, l.classes, nms);
         //else if (nms) do_nms_sort(boxes, probs, l.w*l.h*l.n, l.classes, nms);
-        FILE * fp;
-        fp = fopen("output.dat", "a");
+        FILE * fp = fopen(outfile, "a");
         fprintf(fp, "%s\n", filename);
         fclose(fp);
 
-	draw_detections(im, l.w*l.h*l.n, thresh, boxes, probs, names, alphabet, l.classes);
+	draw_detections(im, l.w*l.h*l.n, thresh, boxes, probs, names, alphabet, l.classes, outfile);
 	/*if(outfile){*/
 	    /*save_image(im, outfile);*/
 	/*}*/

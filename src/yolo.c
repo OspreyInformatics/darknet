@@ -280,6 +280,7 @@ void validate_yolo_recall(char *cfgfile, char *weightfile)
 
 void test_yolo(char *cfgfile, char *weightfile, char *filename, float thresh)
 {
+	char * outfile=NULL;
     image **alphabet = load_alphabet();
     network net = parse_network_cfg(cfgfile);
     if(weightfile){
@@ -315,7 +316,7 @@ void test_yolo(char *cfgfile, char *weightfile, char *filename, float thresh)
         get_detection_boxes(l, 1, 1, thresh, probs, boxes, 0);
         if (nms) do_nms_sort(boxes, probs, l.side*l.side*l.n, l.classes, nms);
         //draw_detections(im, l.side*l.side*l.n, thresh, boxes, probs, voc_names, alphabet, 20);
-        draw_detections(im, l.side*l.side*l.n, thresh, boxes, probs, voc_names, alphabet, 20);
+        draw_detections(im, l.side*l.side*l.n, thresh, boxes, probs, voc_names, alphabet, 20, outfile);
         save_image(im, "predictions");
         show_image(im, "predictions");
 

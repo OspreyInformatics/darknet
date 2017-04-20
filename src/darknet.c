@@ -9,7 +9,7 @@
 #include "connected_layer.h"
 
 extern void predict_classifier(char *datacfg, char *cfgfile, char *weightfile, char *filename, int top);
-extern void test_detector(char *datacfg, char *cfgfile, char *weightfile, char *filenames[], int numfiles, float thresh, float hier_thresh);
+extern void test_detector(char *datacfg, char *cfgfile, char *weightfile, char *filenames[], int numfiles, float thresh, float hier_thresh, char* outfile);
 extern void run_voxel(int argc, char **argv);
 extern void run_yolo(int argc, char **argv);
 extern void run_detector(int argc, char **argv);
@@ -421,14 +421,18 @@ int main(int argc, char **argv)
     } else if (0 == strcmp(argv[1], "detector")){
         run_detector(argc, argv);
     } else if (0 == strcmp(argv[1], "detect")){
-        FILE * fp;
-        fp = fopen("output.dat", "w");
-        fclose(fp);
         float thresh = find_float_arg(argc, argv, "-thresh", .24);
+	char* outfile = find_char_arg(argc, argv, "-outfile", "output.dat");
+        FILE *fp = fopen(outfile, "w");
+        fclose(fp);
         int num_args = argc;
         if (thresh != .24) {
             num_args -= 2;
         }
+	if (0 != strcmp(outfile, "output.dat"))
+	{
+            num_args -= 2;
+	}
         int i;
         int numfiles = num_args-4;
         char *filenames[numfiles];
@@ -439,7 +443,7 @@ int main(int argc, char **argv)
         } else {
             filenames[0] = (num_args > 4) ? argv[4]: 0;
         }
-        test_detector("cfg/coco.data", argv[2], argv[3], filenames, numfiles, thresh, .5);
+        test_detector("cfg/coco.data", argv[2], argv[3], filenames, numfiles, thresh, .5, outfile);
     } else if (0 == strcmp(argv[1], "cifar")){
         run_cifar(argc, argv);
     } else if (0 == strcmp(argv[1], "go")){

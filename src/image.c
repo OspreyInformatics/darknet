@@ -171,13 +171,11 @@ image **load_alphabet()
     return alphabets;
 }
 
-void draw_detections(image im, int num, float thresh, box *boxes, float **probs, char **names, image **alphabet, int classes)
+void draw_detections(image im, int num, float thresh, box *boxes, float **probs, char **names, image **alphabet, int classes, char* outfile)
 {
     int i;
 
-    FILE * fp;
-
-    fp = fopen("output.dat", "a");
+    FILE *fp = fopen(outfile, "a");
 
     for(i = 0; i < num; ++i){
         int class = max_index(probs[i], classes);
