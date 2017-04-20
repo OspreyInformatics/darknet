@@ -636,22 +636,22 @@ void test_detector(char *datacfg, char *cfgfile, char *weightfile, char *filenam
         fprintf(fp, "%s\n", filename);
         fclose(fp);
 
-        draw_detections(im, l.w*l.h*l.n, thresh, boxes, probs, names, alphabet, l.classes);
-        if(outfile){
-            save_image(im, outfile);
-        }
-        else{
-            save_image(im, "predictions");
-#ifdef OPENCV
-            cvNamedWindow("predictions", CV_WINDOW_NORMAL); 
-            if(fullscreen){
-                cvSetWindowProperty("predictions", CV_WND_PROP_FULLSCREEN, CV_WINDOW_FULLSCREEN);
-            }
-            show_image(im, "predictions");
-            cvWaitKey(0);
-            cvDestroyAllWindows();
-#endif
-        }
+	draw_detections(im, l.w*l.h*l.n, thresh, boxes, probs, names, alphabet, l.classes);
+	/*if(outfile){*/
+	    /*save_image(im, outfile);*/
+	/*}*/
+	/*else{*/
+	    /*save_image(im, "predictions");*/
+/*#ifdef OPENCV*/
+	   /*cvNamedWindow("predictions", CV_WINDOW_NORMAL); */
+	    /*if(fullscreen){*/
+		/*cvSetWindowProperty("predictions", CV_WND_PROP_FULLSCREEN, CV_WINDOW_FULLSCREEN);*/
+	    /*}*/
+	    /*show_image(im, "predictions");*/
+	    /*cvWaitKey(0);*/
+	    /*cvDestroyAllWindows();*/
+/*#endif*/
+	/*}*/
 
         free_image(im);
         free_image(sized);

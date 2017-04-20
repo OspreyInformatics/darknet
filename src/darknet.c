@@ -422,7 +422,7 @@ int main(int argc, char **argv)
         run_detector(argc, argv);
     } else if (0 == strcmp(argv[1], "detect")){
         FILE * fp;
-        fp = fopen("output.json", "w");
+        fp = fopen("output.dat", "w");
         fclose(fp);
         float thresh = find_float_arg(argc, argv, "-thresh", .24);
         int num_args = argc;

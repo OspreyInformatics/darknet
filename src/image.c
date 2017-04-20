@@ -177,7 +177,7 @@ void draw_detections(image im, int num, float thresh, box *boxes, float **probs,
 
     FILE * fp;
 
-    fp = fopen("output.json", "a");
+    fp = fopen("output.dat", "a");
 
     for(i = 0; i < num; ++i){
         int class = max_index(probs[i], classes);
